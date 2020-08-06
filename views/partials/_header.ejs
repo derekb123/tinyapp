@@ -12,13 +12,14 @@
     </div>
     <div> 
       <% if (username) { %>
-        <form class="form-inline" action="/logout" method="POST">
-          <%= username %>
-          <div class="form-group mb-2">
-            <!--<label for="longURL">Edit your URL:</label>-->
-            <button type="submit" class="btn btn-primary">Logout</button>
-          </div>
-        </form>
+      
+      <form class="form-inline" action="/logout" method="POST">
+        <%= username %>
+        <div class="form-group mb-2">
+          <!--<label for="longURL">Edit your URL:</label>-->
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </div>
+      </form>
       <% } else { %>
         <form class="form-inline" action="/login" method="POST">
           <div class="form-group mb-2">
