@@ -11,10 +11,10 @@
       </div>
     </div>
     <div> 
-      <% if (username) { %>
+      <% if (userInfo) { %>
       
       <form class="form-inline" action="/logout" method="POST">
-        <%= username %>
+        <%= userInfo %>
         <div class="form-group mb-2">
           <!--<label for="longURL">Edit your URL:</label>-->
           <button type="submit" class="btn btn-primary">Logout</button>
@@ -24,7 +24,7 @@
         <form class="form-inline" action="/login" method="POST">
           <div class="form-group mb-2">
             <!--<label for="longURL">Edit your URL:</label>-->
-            <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
+            <input class="form-control" type="text" name="userInfo" placeholder="userInfo" style="width: 300px; margin: 1em">
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
