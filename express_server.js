@@ -32,6 +32,19 @@ function generateRandomString() {
   return ranStr;
 };
 
+const emailCheck = function(email, list) {
+  for (item in list) {
+    if (email === item.email) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+}
+
+console.log(emailCheck("user2@example.com", users));
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -125,7 +138,16 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   const ranID = generateRandomString();
-  users[ranID] = {id: ranID, email: req.body.email, password: req.body.password}
+  const emailInput = req.body.email;
+  const pwInput = req.body.password;
+  if (emailInput === '' || pwInput === '') {
+    res.status(400).send("User email or password invalid.")
+  }
+  else if (emailCheck(emailInput) === true) {
+    res.status(400).send("User email already registered.")
+  }  
+  console.log(emailCheck(emailInput));
+  users[ranID] = {id: ranID, email: emailInput, password: pwInput}
   res.cookie('user_id', ranID);
   console.log(users);
   res.redirect('/urls');
