@@ -154,7 +154,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const fullURL = urlDatabase[req.params.shortURL];
+  const fullURL = urlDatabase[req.params.shortURL].longURL;
   console.log("HERE");
   console.log(req.params.shortURL);
   res.redirect(`http://${fullURL}`);
