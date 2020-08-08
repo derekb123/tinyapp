@@ -4,8 +4,14 @@ const PORT = 8080; //default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt'); 
+const { getUserObjByEmail } = require('./helpers');
 
-app.use(cookieSession());
+// Middleware
+app.use(cookieSession({
+  name: 'session',
+  keys: ['MyKey'],
+}));
+
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
@@ -42,30 +48,6 @@ const urlsForUser = function (user_id) {
   }
   return userURLs;
 }
-
-// console.log('urlsForUser output:', urlsForUser("aJ48lW", urlDatabase)); 
-
-
-// const emailCheck = function(email, list) {
-//   for (item in list) {
-//     if (email === list[item].email) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
-
-const getUserObjByEmail = function(email) {
-  for (userObj in users) {
-    if (email === users[userObj].email) {
-      return users[userObj];
-    }
-  }
-  return false;
-}
-
-
-//console.log('email check function', emailCheck("user2@example.com", users));
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -185,7 +167,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   const emailInput = req.body.email;
   const passwordInput = req.body.password;
-  const userObj = getUserObjByEmail(emailInput);
+  const userObj = getUserObjByEmail(emailInput, users);
   const storedPassword = userObj.password;
   if (userObj === false ) {
     res.status(403).send("User email has not been registered.")
@@ -211,7 +193,7 @@ app.post("/register", (req, res) => {
 
   if (emailInput === '' || hashedPassword === '') {
     res.status(400).send("User email or password invalid.")
-  } else if (getUserObjByEmail(emailInput)) {
+  } else if (getUserObjByEmail(emailInput, users)) {
     res.status(400).send("User email already registered.")
   } else {
     users[ranID] = {id: ranID, email: emailInput, password: hashedPassword}
