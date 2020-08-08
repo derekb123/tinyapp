@@ -24,16 +24,16 @@
           <th scope="col">Edit</th>
         </tr>
       </thead>
-      <% if (userURLs.length === 0) { %>
+      <% if (!user) { %>
         <h5>Please Register or Login to see your URLs.</h5>
       <% } else {%>
-        <% for (let url of userURLs) { %>
+        <% for (let shortURL in userURLs) { %>
             <tbody>
             <tr>
-              <td> <%= url.userID %> </td>
-              <td> <%= url.longURL %> </td>
-              <td> <form method="POST" action="/urls/<%= url %>/delete"><button>Delete</button></form></td>
-              <td> <form method="GET" action="/urls/<%= url %>"><button>Edit</button></form></td>
+              <td> <%= shortURL %> </td>
+              <td> <%= userURLs[shortURL].longURL %> </td>
+              <td> <form method="POST" action="/urls/<%= shortURL %>/delete"><button>Delete</button></form></td>
+              <td> <form method="GET" action="/urls/<%= shortURL %>"><button>Edit</button></form></td>
             </tr>
           </tbody>
           <% } %>
