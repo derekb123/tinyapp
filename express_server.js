@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt'); 
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -54,10 +55,10 @@ const urlsForUser = function (user_id) {
 //   return false;
 // }
 
-const emailRetrieve = function(email, list) {
-  for (item in list) {
-    if (email === list[item].email) {
-      return list[item];
+const getUserObjByEmail = function(email) {
+  for (userObj in users) {
+    if (email === users[userObj].email) {
+      return users[userObj];
     }
   }
   return false;
@@ -183,14 +184,15 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/login", (req, res) => {
   const emailInput = req.body.email;
-  const pwInput = req.body.password;
-  const objCheck = emailRetrieve(emailInput, users);
-  if (objCheck === false ) {
+  const passwordInput = req.body.password;
+  const userObj = getUserObjByEmail(emailInput);
+  const storedPassword = userObj.password;
+  if (userObj === false ) {
     res.status(403).send("User email has not been registered.")
-  } else if (objCheck.password !== pwInput){
+  } else if (!bcrypt.compareSync(passwordInput, storedPassword)){
     res.status(403).send("Email or password is incorrect.")
   } else {
-  res.cookie('user_id', objCheck.id);
+  res.cookie('user_id', userObj.id);
   console.log(users);
   res.redirect('/urls');
   }
@@ -204,14 +206,15 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const ranID = generateRandomString();
   const emailInput = req.body.email;
-  const pwInput = req.body.password;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
-  if (emailInput === '' || pwInput === '') {
+  if (emailInput === '' || hashedPassword === '') {
     res.status(400).send("User email or password invalid.")
-  } else if (emailRetrieve(emailInput, users)) {
+  } else if (getUserObjByEmail(emailInput)) {
     res.status(400).send("User email already registered.")
   } else {
-    users[ranID] = {id: ranID, email: emailInput, password: pwInput}
+    users[ranID] = {id: ranID, email: emailInput, password: hashedPassword}
     res.cookie('user_id', ranID);
     console.log(users);
     res.redirect('/urls');
