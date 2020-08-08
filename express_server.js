@@ -2,10 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080; //default port 8080
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt'); 
 
-app.use(cookieParser());
+app.use(cookieSession());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
@@ -82,7 +82,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session.user_id];
   let templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
@@ -94,7 +94,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session.user_id];
   let templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
@@ -105,8 +105,8 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies['user_id']];
-  const userCookie = req.cookies['user_id'];
+  const user = users[req.session.user_id];
+  const userCookie = req.session.user_id;
   let urls = urlsForUser(userCookie ,urlDatabase);
   console.log(urls);
   let templateVars = {  
@@ -118,13 +118,13 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session.user_id];
   let templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
     user: user
   };
-  if (!req.cookies['user_id']){
+  if (!req.session.user_id){
     res.redirect('/login');
   } else {
       res.render("urls_new", templateVars);
@@ -132,7 +132,7 @@ app.get("/urls/new", (req, res) => {
 })
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session.user_id];
   const shortURL = req.params.shortURL;
   console.log(shortURL);
   let templateVars = { 
@@ -150,7 +150,7 @@ app.post("/urls", (req, res) => {
   const sURL = generateRandomString(); // Log the POST request body to the console
   urlDatabase[sURL] = {
     longURL: req.body.longURL,
-    userID: req.cookies['user_id']
+    userID: req.session.user_id
   };
   console.log(urlDatabase);
   res.redirect(`/urls/${sURL}`);
@@ -166,7 +166,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
-  let userID = req.cookies['user_id']
+  let userID = req.session.user_id
   if (urlDatabase[shortURL].userID === userID){
     delete urlDatabase[shortURL];
     res.redirect('/urls');
@@ -175,7 +175,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let userID = req.cookies['user_id']
+  let userID = req.session.user_id
   if (urlDatabase[shortURL].userID === userID){
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect('/urls');
@@ -215,7 +215,7 @@ app.post("/register", (req, res) => {
     res.status(400).send("User email already registered.")
   } else {
     users[ranID] = {id: ranID, email: emailInput, password: hashedPassword}
-    res.cookie('user_id', ranID);
+    req.session.user_id = ranID;
     console.log(users);
     res.redirect('/urls');
   } 
