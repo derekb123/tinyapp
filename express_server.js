@@ -59,7 +59,7 @@ app.get("/register", (req, res) => {
     urls: urlDatabase,
     user: user
   };
-  console.log(req.body);
+  //console.log(req.body);
   res.render("user_registration", templateVars);
 });
 
@@ -78,7 +78,7 @@ app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
   const userCookie = req.session.user_id;
   let urls = urlsForUser(userCookie ,urlDatabase);
-  console.log(urls);
+  //console.log(urls);
   let templateVars = {
     user: user,
     userURLs : urls,
@@ -132,9 +132,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const fullURL = urlDatabase[req.params.shortURL].longURL;
-  console.log("HERE");
-  console.log(req.params.shortURL);
-  res.redirect(`http://${fullURL}`);
+  if (fullURL.slice(0,7) === 'http://' || fullURL.slice(0,8) === 'https://') {
+    console.log(`the fullURL is: ${fullURL}, the type of fullURL is ${typeof fullURL}`);
+    res.redirect(fullURL);
+  } else {
+    res.redirect(`http://${fullURL}`);
+  }
   //res.send('OK');
 });
 
@@ -169,7 +172,7 @@ app.post("/login", (req, res) => {
     res.status(403).send("Password is incorrect.");
   } else {
     req.session.user_id = userObj.id;
-    console.log(users);
+    //console.log(users);
     res.redirect('/urls');
   }
 });
@@ -192,7 +195,7 @@ app.post("/register", (req, res) => {
   } else {
     users[ranID] = {id: ranID, email: emailInput, password: hashedPassword};
     req.session.user_id = ranID;
-    console.log(users);
+    //console.log(users);
     res.redirect('/urls');
   }
 });
